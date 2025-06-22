@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Users, Calendar, Clock, MapPin, AlertTriangle, CheckCircle, RefreshCw, Filter, Download, Upload } from 'lucide-react';
+import { Search, Users, Calendar, Clock, MapPin, AlertTriangle, CheckCircle, RefreshCw, Filter, Download, Upload, BookOpen, User } from 'lucide-react';
 
 const CursosInterface = () => {
   const [cursos, setCursos] = useState([]);
@@ -13,14 +13,72 @@ const CursosInterface = () => {
 
   // Configuração do Google Sheets
   const SHEETS_CONFIG = {
-    // Sua URL do Google Apps Script
     API_URL: 'https://script.google.com/macros/s/AKfycbwYaLOq52pvR529-aql7b-Hdd5Zm60wrCrk3tr8qTequ0CIA3G52dpQQojg83CN8zI9/exec',
   };
+
+  // Dados de exemplo para demonstração (caso não consiga conectar ao Google Sheets)
+  const dadosExemplo = [
+    {
+      id: 1,
+      localidade: "São Paulo - SP",
+      curso: "Desenvolvimento Web",
+      nomenclatura: "Curso Completo de Desenvolvimento Web com HTML, CSS, JavaScript e React",
+      matriculados: 25,
+      inicio: "15/01/2025",
+      termino: "15/06/2025",
+      dia: "Segunda a Quinta",
+      hora: "19:00 às 22:00",
+      pendente: ["João Silva", "Maria Santos", "Pedro Costa"],
+      irregular: ["Ana Oliveira"],
+      status: "ativo"
+    },
+    {
+      id: 2,
+      localidade: "Rio de Janeiro - RJ",
+      curso: "Python para Data Science",
+      nomenclatura: "Análise de Dados e Machine Learning com Python, Pandas e Scikit-learn",
+      matriculados: 18,
+      inicio: "20/01/2025",
+      termino: "20/05/2025",
+      dia: "Terça e Quinta",
+      hora: "18:30 às 21:30",
+      pendente: ["Carlos Lima", "Sofia Rocha"],
+      irregular: ["Bruno Alves", "Camila Ferreira", "Diego Santos"],
+      status: "ativo"
+    },
+    {
+      id: 3,
+      localidade: "Belo Horizonte - MG",
+      curso: "Design UX/UI",
+      nomenclatura: "Design de Experiência do Usuário e Interface com Figma e Prototipação",
+      matriculados: 20,
+      inicio: "10/02/2025",
+      termino: "10/07/2025",
+      dia: "Segunda a Sexta",
+      hora: "14:00 às 17:00",
+      pendente: ["Larissa Melo", "Rafael Torres", "Amanda Silva", "Gabriel Costa"],
+      irregular: [],
+      status: "ativo"
+    },
+    {
+      id: 4,
+      localidade: "Campinas - SP",
+      curso: "Mobile Development",
+      nomenclatura: "Desenvolvimento de Aplicativos Mobile com React Native e Flutter",
+      matriculados: 15,
+      inicio: "05/02/2025",
+      termino: "05/08/2025",
+      dia: "Sábados",
+      hora: "08:00 às 17:00",
+      pendente: ["Lucas Barbosa"],
+      irregular: ["Fernanda Lima", "Ricardo Santos", "Julia Oliveira", "Marcos Silva", "Patricia Costa", "Eduardo Rocha"],
+      status: "ativo"
+    }
+  ];
 
   // Função para processar dados do Google Sheets
   const processarDadosSheets = (dadosRaw) => {
     try {
-      // Se os dados vêm do Google Apps Script como JSON
       if (Array.isArray(dadosRaw)) {
         return dadosRaw.map((item, index) => ({
           id: index + 1,
@@ -32,13 +90,12 @@ const CursosInterface = () => {
           termino: item.termino || '',
           dia: item.dia || '',
           hora: item.hora || '',
-          pendente: item.pendente ? item.pendente.split(',').map(d => d.trim()) : [],
-          irregular: item.irregular ? item.irregular.split(',').map(d => d.trim()) : [],
+          pendente: item.pendente ? item.pendente.split(',').map(d => d.trim()).filter(d => d) : [],
+          irregular: item.irregular ? item.irregular.split(',').map(d => d.trim()).filter(d => d) : [],
           status: item.status || 'ativo'
         }));
       }
       
-      // Se os dados vêm da API do Google Sheets (formato de array)
       if (dadosRaw.values) {
         const [headers, ...rows] = dadosRaw.values;
         return rows.map((row, index) => {
@@ -57,8 +114,8 @@ const CursosInterface = () => {
             termino: obj.termino || '',
             dia: obj.dia || '',
             hora: obj.hora || '',
-            pendente: obj.pendente ? obj.pendente.split(',').map(d => d.trim()) : [],
-            irregular: obj.irregular ? obj.irregular.split(',').map(d => d.trim()) : [],
+            pendente: obj.pendente ? obj.pendente.split(',').map(d => d.trim()).filter(d => d) : [],
+            irregular: obj.irregular ? obj.irregular.split(',').map(d => d.trim()).filter(d => d) : [],
             status: obj.status || 'ativo'
           };
         });
@@ -71,59 +128,85 @@ const CursosInterface = () => {
     }
   };
 
-  // Função principal para buscar dados - CORRIGIDA PARA CORS
+  // Função para buscar dados do Google Sheets com fallback
   const fetchCursos = async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      // Usando JSONP para contornar CORS
-      const response = await fetch(`${SHEETS_CONFIG.API_URL}?callback=?`, {
-        method: 'GET',
-        mode: 'no-cors', // Importante para contornar CORS
-      });
 
-      // Como usamos no-cors, não podemos ler a resposta diretamente
-      // Vamos usar uma abordagem diferente com script tag para JSONP
       const scriptTag = document.createElement('script');
       const callbackName = `jsonp_callback_${Date.now()}`;
-      
-      // Criar callback global
-      window[callbackName] = (data) => {
-        try {
-          const dadosProcessados = processarDadosSheets(data);
-          setCursos(dadosProcessados);
-          setFilteredCursos(dadosProcessados);
-          setLastUpdate(new Date());
-          setIsConnected(true);
-          setError(null);
-        } catch (error) {
-          console.error('Erro ao processar dados:', error);
-          setError('Erro ao processar dados do Google Sheets');
-          setIsConnected(false);
-        } finally {
-          // Limpar
-          document.head.removeChild(scriptTag);
-          delete window[callbackName];
-        }
-      };
+      let timeoutId;
 
-      // Configurar script para JSONP
-      scriptTag.src = `${SHEETS_CONFIG.API_URL}?callback=${callbackName}`;
-      scriptTag.onerror = () => {
-        setError('Erro ao conectar com Google Sheets. Verifique se o script está publicado corretamente.');
-        setIsConnected(false);
+      // Callback para receber os dados do JSONP
+      window[callbackName] = (data) => {
+        clearTimeout(timeoutId);
         document.head.removeChild(scriptTag);
         delete window[callbackName];
+        
+        try {
+          const dadosProcessados = processarDadosSheets(data);
+          if (dadosProcessados.length > 0) {
+            setCursos(dadosProcessados);
+            setFilteredCursos(dadosProcessados);
+            setIsConnected(true);
+            setError(null);
+          } else {
+            throw new Error('Dados vazios ou inválidos');
+          }
+        } catch (error) {
+          console.error('Erro ao processar dados:', error);
+          setError('Erro ao processar dados do Google Sheets - usando dados de exemplo');
+          setIsConnected(false);
+          setCursos(dadosExemplo);
+          setFilteredCursos(dadosExemplo);
+        }
+        
+        setLastUpdate(new Date());
+        setLoading(false);
       };
 
+      // Timeout para fallback
+      timeoutId = setTimeout(() => {
+        if (document.head.contains(scriptTag)) {
+          document.head.removeChild(scriptTag);
+        }
+        delete window[callbackName];
+        
+        setError('Timeout ao conectar com Google Sheets - usando dados de exemplo');
+        setIsConnected(false);
+        setCursos(dadosExemplo);
+        setFilteredCursos(dadosExemplo);
+        setLastUpdate(new Date());
+        setLoading(false);
+      }, 10000); // 10 segundos
+
+      // Adicionar script para JSONP
+      scriptTag.src = `${SHEETS_CONFIG.API_URL}?callback=${callbackName}`;
+      scriptTag.onerror = () => {
+        clearTimeout(timeoutId);
+        if (document.head.contains(scriptTag)) {
+          document.head.removeChild(scriptTag);
+        }
+        delete window[callbackName];
+        
+        setError('Erro de rede ao conectar com Google Sheets - usando dados de exemplo');
+        setIsConnected(false);
+        setCursos(dadosExemplo);
+        setFilteredCursos(dadosExemplo);
+        setLastUpdate(new Date());
+        setLoading(false);
+      };
+      
       document.head.appendChild(scriptTag);
       
     } catch (error) {
-      console.error('Erro ao buscar dados:', error);
-      setError('Erro ao conectar com Google Sheets. Verifique a configuração.');
+      console.error('Erro geral:', error);
+      setError('Erro ao conectar com Google Sheets - usando dados de exemplo');
       setIsConnected(false);
-    } finally {
+      setCursos(dadosExemplo);
+      setFilteredCursos(dadosExemplo);
+      setLastUpdate(new Date());
       setLoading(false);
     }
   };
@@ -162,19 +245,23 @@ const CursosInterface = () => {
 
   const formatarData = (data) => {
     if (!data) return 'N/A';
-    const [dia, mes, ano] = data.split('/');
-    if (!dia || !mes || !ano) return data;
-    return new Date(ano, mes - 1, dia).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
+    try {
+      const [dia, mes, ano] = data.split('/');
+      if (!dia || !mes || !ano) return data;
+      return new Date(ano, mes - 1, dia).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch {
+      return data;
+    }
   };
 
   const getStatusColor = (pendente, irregular) => {
-    if (irregular.length > 5) return 'bg-red-100 text-red-800';
-    if (pendente.length > 3) return 'bg-orange-100 text-orange-800';
-    return 'bg-green-100 text-green-800';
+    if (irregular.length > 5) return 'critical';
+    if (pendente.length > 3) return 'warning';
+    return 'normal';
   };
 
   const getStatusText = (pendente, irregular) => {
@@ -195,332 +282,635 @@ const CursosInterface = () => {
     linkElement.click();
   };
 
+  const handleRefresh = () => {
+    fetchCursos();
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedLocalidade('all');
+  };
+
+  const styles = {
+    container: {
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    },
+    main: {
+      maxWidth: '1200px',
+      margin: '0 auto',
+      padding: '20px'
+    },
+    header: {
+      textAlign: 'center',
+      marginBottom: '40px'
+    },
+    title: {
+      fontSize: '2.5rem',
+      fontWeight: 'bold',
+      color: '#1e293b',
+      marginBottom: '10px'
+    },
+    subtitle: {
+      fontSize: '1.1rem',
+      color: '#64748b',
+      marginBottom: '20px'
+    },
+    statusBar: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: '20px',
+      fontSize: '0.9rem',
+      color: '#64748b'
+    },
+    errorMessage: {
+      backgroundColor: '#fef2f2',
+      border: '1px solid #fecaca',
+      color: '#991b1b',
+      padding: '12px 16px',
+      borderRadius: '8px',
+      marginBottom: '20px',
+      fontSize: '0.9rem',
+      textAlign: 'center'
+    },
+    warningMessage: {
+      backgroundColor: '#fffbeb',
+      border: '1px solid #fed7aa',
+      color: '#92400e',
+      padding: '12px 16px',
+      borderRadius: '8px',
+      marginBottom: '20px',
+      fontSize: '0.9rem',
+      textAlign: 'center'
+    },
+    statsGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+      gap: '20px',
+      marginBottom: '30px'
+    },
+    statCard: {
+      backgroundColor: 'white',
+      padding: '25px',
+      borderRadius: '12px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      border: '1px solid #e2e8f0'
+    },
+    statCardHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center'
+    },
+    statNumber: {
+      fontSize: '2rem',
+      fontWeight: 'bold',
+      color: '#1e293b'
+    },
+    statLabel: {
+      fontSize: '0.9rem',
+      color: '#64748b',
+      marginTop: '5px'
+    },
+    filterBar: {
+      backgroundColor: 'white',
+      padding: '25px',
+      borderRadius: '12px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      border: '1px solid #e2e8f0',
+      marginBottom: '30px'
+    },
+    filterGrid: {
+      display: 'grid',
+      gridTemplateColumns: '1fr auto auto auto',
+      gap: '15px',
+      alignItems: 'center'
+    },
+    searchInput: {
+      width: '100%',
+      padding: '12px 15px 12px 40px',
+      border: '1px solid #d1d5db',
+      borderRadius: '8px',
+      fontSize: '1rem',
+      outline: 'none',
+      transition: 'border-color 0.2s'
+    },
+    select: {
+      padding: '12px 15px',
+      border: '1px solid #d1d5db',
+      borderRadius: '8px',
+      fontSize: '1rem',
+      minWidth: '200px',
+      outline: 'none'
+    },
+    button: {
+      padding: '12px 20px',
+      borderRadius: '8px',
+      border: 'none',
+      fontSize: '0.9rem',
+      fontWeight: '500',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      transition: 'background-color 0.2s'
+    },
+    buttonPrimary: {
+      backgroundColor: '#3b82f6',
+      color: 'white'
+    },
+    buttonSuccess: {
+      backgroundColor: '#10b981',
+      color: 'white'
+    },
+    courseCard: {
+      backgroundColor: 'white',
+      borderRadius: '12px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      border: '1px solid #e2e8f0',
+      marginBottom: '25px',
+      overflow: 'hidden'
+    },
+    courseHeader: {
+      background: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)',
+      color: 'white',
+      padding: '25px'
+    },
+    courseHeaderGrid: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start'
+    },
+    courseTitle: {
+      fontSize: '1.5rem',
+      fontWeight: 'bold',
+      marginBottom: '5px'
+    },
+    courseSubtitle: {
+      fontSize: '1rem',
+      opacity: '0.9'
+    },
+    courseBody: {
+      padding: '25px'
+    },
+    courseDescription: {
+      backgroundColor: '#f8fafc',
+      padding: '20px',
+      borderRadius: '8px',
+      border: '1px solid #e2e8f0',
+      marginBottom: '25px'
+    },
+    infoGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+      gap: '15px',
+      marginBottom: '25px'
+    },
+    infoCard: {
+      textAlign: 'center',
+      padding: '20px',
+      borderRadius: '8px',
+      border: '1px solid #e2e8f0'
+    },
+    statusGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+      gap: '20px'
+    },
+    statusCard: {
+      padding: '20px',
+      borderRadius: '8px',
+      border: '1px solid #e2e8f0'
+    },
+    statusHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '15px'
+    },
+    statusTitle: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      fontWeight: '600'
+    },
+    statusBadge: {
+      padding: '4px 12px',
+      borderRadius: '20px',
+      fontSize: '0.8rem',
+      fontWeight: 'bold'
+    },
+    studentList: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px'
+    },
+    studentItem: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      fontSize: '0.9rem'
+    },
+    loading: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      flexDirection: 'column'
+    },
+    spinner: {
+      border: '4px solid #e2e8f0',
+      borderTop: '4px solid #3b82f6',
+      borderRadius: '50%',
+      width: '40px',
+      height: '40px',
+      animation: 'spin 1s linear infinite',
+      marginBottom: '20px'
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-200 border-t-indigo-600 mx-auto mb-4"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <RefreshCw className="w-6 h-6 text-indigo-600 animate-pulse" />
-            </div>
-          </div>
-          <p className="text-gray-600 font-medium">Conectando com Google Sheets...</p>
-          <p className="text-gray-400 text-sm mt-1">Carregando dados dos cursos...</p>
+      <div style={styles.container}>
+        <div style={styles.loading}>
+          <div style={styles.spinner}></div>
+          <p style={{color: '#64748b', fontWeight: '500', marginBottom: '8px'}}>
+            Conectando com Google Sheets...
+          </p>
+          <p style={{color: '#64748b', fontSize: '0.9rem'}}>
+            Carregando dados dos cursos...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header com gradiente */}
-        <div className="mb-8 text-center">
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            <h1 className="text-5xl font-bold mb-2">
-              Dashboard de Cursos
-            </h1>
-          </div>
-          <p className="text-gray-600 text-lg">
-            Gerencie e visualize informações dos cursos em tempo real
-          </p>
-          <div className="mt-4 flex items-center justify-center space-x-4 text-sm">
-            <div className="flex items-center space-x-2 text-gray-500">
-              <Clock className="w-4 h-4" />
-              <span>Última atualização: {lastUpdate.toLocaleString('pt-BR')}</span>
+    <div style={styles.container}>
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        input:focus, select:focus {
+          border-color: #3b82f6 !important;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        button:hover {
+          opacity: 0.9;
+        }
+        @media (max-width: 768px) {
+          .filter-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
+      `}</style>
+      
+      <div style={styles.main}>
+        {/* Header */}
+        <div style={styles.header}>
+          <h1 style={styles.title}>Dashboard de Cursos</h1>
+          <p style={styles.subtitle}>Gerencie e visualize informações dos cursos em tempo real</p>
+          
+          <div style={styles.statusBar}>
+            <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+              <Clock size={16} />
+              <span>Atualizado: {lastUpdate.toLocaleString('pt-BR')}</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-              <span className={`text-sm font-medium ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
-                {isConnected ? 'Google Sheets Conectado' : 'Desconectado do Google Sheets'}
+            <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+              <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: isConnected ? '#10b981' : '#f59e0b'
+              }}></div>
+              <span style={{color: isConnected ? '#10b981' : '#f59e0b', fontWeight: '500'}}>
+                {isConnected ? 'Conectado ao Google Sheets' : 'Modo Demonstração'}
               </span>
             </div>
           </div>
-          
-          {error && (
-            <div className="mt-4 p-4 bg-red-100 border border-red-200 rounded-lg text-red-700 text-sm">
-              <div className="flex items-center space-x-2">
-                <AlertTriangle className="w-4 h-4" />
-                <span className="font-medium">Erro de Conexão:</span>
-              </div>
-              <p className="mt-1">{error}</p>
-              <p className="mt-2 text-xs">
-                📝 <strong>Instruções para corrigir:</strong><br/>
-                1. Acesse seu Google Apps Script<br/>
-                2. Vá em "Implantar" → "Nova implantação"<br/>
-                3. Selecione "Aplicativo da web"<br/>
-                4. Em "Executar como" escolha sua conta<br/>
-                5. Em "Quem tem acesso" escolha "Qualquer pessoa"<br/>
-                6. Clique em "Implantar" e copie a nova URL
-              </p>
-            </div>
-          )}
         </div>
 
-        {/* Estatísticas em destaque */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20">
-            <div className="flex items-center justify-between">
+        {/* Mensagem de Status */}
+        {error && !isConnected && (
+          <div style={styles.warningMessage}>
+            <AlertTriangle size={16} style={{display: 'inline', marginRight: '8px'}} />
+            {error}
+          </div>
+        )}
+
+        {/* Estatísticas */}
+        <div style={styles.statsGrid} className="stats-grid">
+          <div style={styles.statCard}>
+            <div style={styles.statCardHeader}>
               <div>
-                <p className="text-3xl font-bold text-indigo-600">
-                  {filteredCursos.length}
-                </p>
-                <p className="text-gray-600 text-sm font-medium">Total de Cursos</p>
+                <div style={styles.statNumber}>{filteredCursos.length}</div>
+                <div style={styles.statLabel}>Total de Cursos</div>
               </div>
-              <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-indigo-600" />
-              </div>
+              <BookOpen size={32} color="#3b82f6" />
             </div>
           </div>
           
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20">
-            <div className="flex items-center justify-between">
+          <div style={styles.statCard}>
+            <div style={styles.statCardHeader}>
               <div>
-                <p className="text-3xl font-bold text-green-600">
+                <div style={styles.statNumber}>
                   {filteredCursos.reduce((acc, curso) => acc + curso.matriculados, 0)}
-                </p>
-                <p className="text-gray-600 text-sm font-medium">Total de Alunos</p>
+                </div>
+                <div style={styles.statLabel}>Total de Alunos</div>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-green-600" />
-              </div>
+              <Users size={32} color="#10b981" />
             </div>
           </div>
           
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20">
-            <div className="flex items-center justify-between">
+          <div style={styles.statCard}>
+            <div style={styles.statCardHeader}>
               <div>
-                <p className="text-3xl font-bold text-orange-600">
+                <div style={styles.statNumber}>
                   {filteredCursos.reduce((acc, curso) => acc + curso.pendente.length, 0)}
-                </p>
-                <p className="text-gray-600 text-sm font-medium">Pendências</p>
+                </div>
+                <div style={styles.statLabel}>Pendências</div>
               </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-orange-600" />
-              </div>
+              <AlertTriangle size={32} color="#f59e0b" />
             </div>
           </div>
           
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20">
-            <div className="flex items-center justify-between">
+          <div style={styles.statCard}>
+            <div style={styles.statCardHeader}>
               <div>
-                <p className="text-3xl font-bold text-red-600">
+                <div style={styles.statNumber}>
                   {filteredCursos.reduce((acc, curso) => acc + curso.irregular.length, 0)}
-                </p>
-                <p className="text-gray-600 text-sm font-medium">Irregularidades</p>
+                </div>
+                <div style={styles.statLabel}>Irregularidades</div>
               </div>
-              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
-              </div>
+              <AlertTriangle size={32} color="#ef4444" />
             </div>
           </div>
         </div>
 
-        {/* Filtros modernos */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-8 border border-white/20">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <Filter className="w-5 h-5 text-indigo-600" />
-              <h3 className="text-lg font-semibold text-gray-800">Filtros</h3>
+        {/* Filtros */}
+        <div style={styles.filterBar}>
+          <div style={styles.filterGrid} className="filter-grid">
+            <div style={{position: 'relative'}}>
+              <Search size={20} style={{
+                position: 'absolute',
+                left: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#9ca3af'
+              }} />
+              <input
+                type="text"
+                placeholder="Buscar cursos, localidades ou instrutores..."
+                style={styles.searchInput}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
             
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={exportarDados}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 text-sm"
-              >
-                <Download className="w-4 h-4" />
-                <span>Exportar</span>
-              </button>
-            </div>
-          </div>
-          
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Buscar por localidade, curso ou instrutor..."
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-            
-            <div className="lg:w-64">
-              <select
-                className="w-full py-3 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50"
-                value={selectedLocalidade}
-                onChange={(e) => setSelectedLocalidade(e.target.value)}
-              >
-                <option value="all">Todas as Localidades</option>
-                {localidades.map(localidade => (
-                  <option key={localidade} value={localidade}>
-                    {localidade}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              style={styles.select}
+              value={selectedLocalidade}
+              onChange={(e) => setSelectedLocalidade(e.target.value)}
+            >
+              <option value="all">Todas as Localidades</option>
+              {localidades.map(localidade => (
+                <option key={localidade} value={localidade}>
+                  {localidade}
+                </option>
+              ))}
+            </select>
             
             <button
-              onClick={() => fetchCursos()}
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+              style={{...styles.button, ...styles.buttonSuccess}}
+              onClick={exportarDados}
+            >
+              <Download size={16} />
+              Exportar
+            </button>
+            
+            <button
+              style={{...styles.button, ...styles.buttonPrimary}}
+              onClick={handleRefresh}
               disabled={loading}
             >
-              <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-              <span>Atualizar</span>
+              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+              Atualizar
             </button>
           </div>
         </div>
 
         {/* Cards dos Cursos */}
-        <div className="grid gap-6">
+        <div>
           {filteredCursos.map((curso) => (
-            <div key={curso.id} className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 overflow-hidden">
-              {/* Header com status */}
-              <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                      <MapPin className="w-8 h-8 text-white" />
+            <div key={curso.id} style={styles.courseCard}>
+              {/* Header do Card */}
+              <div style={styles.courseHeader}>
+                <div style={styles.courseHeaderGrid}>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
+                    <div style={{
+                      width: '50px',
+                      height: '50px',
+                      backgroundColor: 'rgba(255,255,255,0.2)',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <MapPin size={24} />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold mb-1">
-                        {curso.localidade}
-                      </h3>
-                      <p className="text-white/90 text-lg font-semibold">
-                        {curso.curso}
-                      </p>
+                      <h3 style={styles.courseTitle}>{curso.localidade}</h3>
+                      <p style={styles.courseSubtitle}>{curso.curso}</p>
                     </div>
                   </div>
                   
-                  <div className="text-right">
-                    <div className="flex items-center space-x-2 bg-white/20 px-4 py-2 rounded-xl backdrop-blur-sm mb-2">
-                      <Users className="w-5 h-5" />
-                      <span className="font-medium">
-                        {curso.matriculados} alunos
-                      </span>
+                  <div style={{textAlign: 'right'}}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      backgroundColor: 'rgba(255,255,255,0.2)',
+                      padding: '8px 15px',
+                      borderRadius: '8px',
+                      marginBottom: '10px'
+                    }}>
+                      <Users size={16} />
+                      <span>{curso.matriculados} alunos</span>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(curso.pendente, curso.irregular)}`}>
+                    <span style={{
+                      padding: '6px 12px',
+                      borderRadius: '20px',
+                      fontSize: '0.8rem',
+                      fontWeight: '600',
+                      backgroundColor: getStatusColor(curso.pendente, curso.irregular) === 'critical' ? '#fef2f2' : 
+                                      getStatusColor(curso.pendente, curso.irregular) === 'warning' ? '#fffbeb' : '#f0fdf4',
+                      color: getStatusColor(curso.pendente, curso.irregular) === 'critical' ? '#dc2626' : 
+                             getStatusColor(curso.pendente, curso.irregular) === 'warning' ? '#d97706' : '#16a34a',
+                      border: `1px solid ${getStatusColor(curso.pendente, curso.irregular) === 'critical' ? '#fecaca' : 
+                                             getStatusColor(curso.pendente, curso.irregular) === 'warning' ? '#fed7aa' : '#bbf7d0'}`
+                    }}>
                       {getStatusText(curso.pendente, curso.irregular)}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="p-6">
-                {/* Informações do Curso */}
-                <div className="mb-6">
-                  <h4 className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">
-                    Nomenclatura do Curso
+              <div style={styles.courseBody}>
+                {/* Descrição */}
+                <div style={styles.courseDescription}>
+                  <h4 style={{
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    color: '#6b7280',
+                    marginBottom: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
+                  }}>
+                    Descrição do Curso
                   </h4>
-                  <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl">
+                  <p style={{color: '#374151', lineHeight: '1.6'}}>
                     {curso.nomenclatura}
                   </p>
                 </div>
 
-                {/* Grid de Informações */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                  <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-                    <Calendar className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                    <p className="text-xs text-blue-600 font-semibold mb-1">INÍCIO</p>
-                    <p className="text-sm font-bold text-gray-800">
+                {/* Informações do Cronograma */}
+                <div style={styles.infoGrid}>
+                  <div style={{...styles.infoCard, backgroundColor: '#eff6ff'}}>
+                    <Calendar size={24} color="#3b82f6" style={{margin: '0 auto 10px'}} />
+                    <p style={{fontSize: '0.8rem', color: '#3b82f6', fontWeight: '600', marginBottom: '5px'}}>INÍCIO</p>
+                    <p style={{fontSize: '0.9rem', fontWeight: 'bold', color: '#1f2937'}}>
                       {formatarData(curso.inicio)}
                     </p>
                   </div>
                   
-                  <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
-                    <Calendar className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                    <p className="text-xs text-green-600 font-semibold mb-1">TÉRMINO</p>
-                    <p className="text-sm font-bold text-gray-800">
+                  <div style={{...styles.infoCard, backgroundColor: '#f0fdf4'}}>
+                    <Calendar size={24} color="#16a34a" style={{margin: '0 auto 10px'}} />
+                    <p style={{fontSize: '0.8rem', color: '#16a34a', fontWeight: '600', marginBottom: '5px'}}>TÉRMINO</p>
+                    <p style={{fontSize: '0.9rem', fontWeight: 'bold', color: '#1f2937'}}>
                       {formatarData(curso.termino)}
                     </p>
                   </div>
                   
-                  <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
-                    <Clock className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-                    <p className="text-xs text-purple-600 font-semibold mb-1">DIA</p>
-                    <p className="text-sm font-bold text-gray-800">
+                  <div style={{...styles.infoCard, backgroundColor: '#faf5ff'}}>
+                    <Calendar size={24} color="#9333ea" style={{margin: '0 auto 10px'}} />
+                    <p style={{fontSize: '0.8rem', color: '#9333ea', fontWeight: '600', marginBottom: '5px'}}>DIA</p>
+                    <p style={{fontSize: '0.9rem', fontWeight: 'bold', color: '#1f2937'}}>
                       {curso.dia}
                     </p>
                   </div>
                   
-                  <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl border border-orange-100">
-                    <Clock className="w-6 h-6 text-orange-600 mx-auto mb-2" />
-                    <p className="text-xs text-orange-600 font-semibold mb-1">HORÁRIO</p>
-                    <p className="text-sm font-bold text-gray-800">
+                  <div style={{...styles.infoCard, backgroundColor: '#fff7ed'}}>
+                    <Clock size={24} color="#ea580c" style={{margin: '0 auto 10px'}} />
+                    <p style={{fontSize: '0.8rem', color: '#ea580c', fontWeight: '600', marginBottom: '5px'}}>HORÁRIO</p>
+                    <p style={{fontSize: '0.9rem', fontWeight: 'bold', color: '#1f2937'}}>
                       {curso.hora}
                     </p>
                   </div>
                 </div>
 
-                {/* Status Cards */}
-                <div className="grid lg:grid-cols-2 gap-6">
-                  {/* Pendentes */}
-                  <div className="border-2 border-orange-200 rounded-xl p-5 bg-gradient-to-br from-orange-50 to-yellow-50">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-                          <AlertTriangle className="w-5 h-5 text-orange-600" />
-                        </div>
-                        <h5 className="font-bold text-orange-800 text-lg">
-                          Pendentes
-                        </h5>
+                {/* Status dos Alunos */}
+                <div style={styles.statusGrid}>
+                  {/* Pendências */}
+                  <div style={{
+                    ...styles.statusCard,
+                    backgroundColor: curso.pendente.length > 3 ? '#fffbeb' : '#f8fafc',
+                    borderColor: curso.pendente.length > 3 ? '#fed7aa' : '#e2e8f0'
+                  }}>
+                    <div style={styles.statusHeader}>
+                      <div style={styles.statusTitle}>
+                        <AlertTriangle 
+                          size={20} 
+                          color={curso.pendente.length > 3 ? '#d97706' : '#6b7280'} 
+                        />
+                        <span style={{color: curso.pendente.length > 3 ? '#d97706' : '#374151'}}>
+                          Pendências
+                        </span>
                       </div>
-                      <span className="bg-orange-200 text-orange-800 px-3 py-1 rounded-full text-sm font-bold">
+                      <span style={{
+                        ...styles.statusBadge,
+                        backgroundColor: curso.pendente.length > 3 ? '#fed7aa' : '#e5e7eb',
+                        color: curso.pendente.length > 3 ? '#92400e' : '#6b7280'
+                      }}>
                         {curso.pendente.length}
                       </span>
                     </div>
                     
-                    <div className="flex flex-wrap gap-2">
-                      {curso.pendente.slice(0, 8).map((data, idx) => (
-                        <span
-                          key={idx}
-                          className="px-3 py-1 bg-orange-200 text-orange-800 text-sm rounded-full font-medium"
-                        >
-                          {data}
-                        </span>
-                      ))}
-                      {curso.pendente.length > 8 && (
-                        <span className="px-3 py-1 bg-orange-300 text-orange-900 text-sm rounded-full font-bold">
-                          +{curso.pendente.length - 8} mais
-                        </span>
+                    <div style={styles.studentList}>
+                      {curso.pendente.length === 0 ? (
+                        <div style={{
+                          ...styles.studentItem,
+                          color: '#6b7280',
+                          fontStyle: 'italic'
+                        }}>
+                          <CheckCircle size={16} color="#10b981" />
+                          Nenhuma pendência
+                        </div>
+                      ) : (
+                        curso.pendente.map((nome, index) => (
+                          <div key={index} style={styles.studentItem}>
+                            <User size={14} color="#d97706" />
+                            <span style={{color: '#374151'}}>{nome}</span>
+                          </div>
+                        ))
                       )}
                     </div>
                   </div>
 
-                  {/* Irregulares */}
-                  <div className="border-2 border-red-200 rounded-xl p-5 bg-gradient-to-br from-red-50 to-pink-50">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
-                          <AlertTriangle className="w-5 h-5 text-red-600" />
-                        </div>
-                        <h5 className="font-bold text-red-800 text-lg">
-                          Irregulares
-                        </h5>
+                  {/* Irregularidades */}
+                  <div style={{
+                    ...styles.statusCard,
+                    backgroundColor: curso.irregular.length > 5 ? '#fef2f2' : 
+                                    curso.irregular.length > 0 ? '#fffbeb' : '#f8fafc',
+                    borderColor: curso.irregular.length > 5 ? '#fecaca' : 
+                                curso.irregular.length > 0 ? '#fed7aa' : '#e2e8f0'
+                  }}>
+                    <div style={styles.statusHeader}>
+                      <div style={styles.statusTitle}>
+                        <AlertTriangle 
+                          size={20} 
+                          color={curso.irregular.length > 5 ? '#dc2626' : 
+                                 curso.irregular.length > 0 ? '#d97706' : '#6b7280'} 
+                        />
+                        <span style={{
+                          color: curso.irregular.length > 5 ? '#dc2626' : 
+                                 curso.irregular.length > 0 ? '#d97706' : '#374151'
+                        }}>
+                          Irregularidades
+                        </span>
                       </div>
-                      <span className="bg-red-200 text-red-800 px-3 py-1 rounded-full text-sm font-bold">
+                      <span style={{
+                        ...styles.statusBadge,
+                        backgroundColor: curso.irregular.length > 5 ? '#fecaca' : 
+                                        curso.irregular.length > 0 ? '#fed7aa' : '#e5e7eb',
+                        color: curso.irregular.length > 5 ? '#991b1b' : 
+                               curso.irregular.length > 0 ? '#92400e' : '#6b7280'
+                      }}>
                         {curso.irregular.length}
                       </span>
                     </div>
                     
-                    <div className="flex flex-wrap gap-2">
-                      {curso.irregular.slice(0, 8).map((data, idx) => (
-                        <span
-                          key={idx}
-                          className="px-3 py-1 bg-red-200 text-red-800 text-sm rounded-full font-medium"
-                        >
-                          {data}
-                        </span>
-                      ))}
-                      {curso.irregular.length > 8 && (
-                        <span className="px-3 py-1 bg-red-300 text-red-900 text-sm rounded-full font-bold">
-                          +{curso.irregular.length - 8} mais
-                        </span>
+                    <div style={styles.studentList}>
+                      {curso.irregular.length === 0 ? (
+                        <div style={{
+                          ...styles.studentItem,
+                          color: '#6b7280',
+                          fontStyle: 'italic'
+                        }}>
+                          <CheckCircle size={16} color="#10b981" />
+                          Nenhuma irregularidade
+                        </div>
+                      ) : (
+                        curso.irregular.map((nome, index) => (
+                          <div key={index} style={styles.studentItem}>
+                            <User size={14} color="#dc2626" />
+                            <span style={{color: '#374151'}}>{nome}</span>
+                          </div>
+                        ))
                       )}
                     </div>
                   </div>
@@ -530,27 +920,60 @@ const CursosInterface = () => {
           ))}
         </div>
 
-        {/* Mensagem quando não há resultados */}
+        {/* Mensagem quando não há cursos */}
         {filteredCursos.length === 0 && !loading && (
-          <div className="text-center py-12">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              {isConnected ? (
-                <Search className="w-12 h-12 text-gray-400" />
-              ) : (
-                <AlertTriangle className="w-12 h-12 text-red-400" />
-              )}
-            </div>
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">
-              {isConnected ? 'Nenhum curso encontrado' : 'Falha na conexão com Google Sheets'}
+          <div style={{
+            textAlign: 'center',
+            padding: '60px 20px',
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: '1px solid #e2e8f0'
+          }}>
+            <BookOpen size={48} color="#9ca3af" style={{margin: '0 auto 20px'}} />
+            <h3 style={{
+              fontSize: '1.5rem',
+              fontWeight: '600',
+              color: '#374151',
+              marginBottom: '10px'
+            }}>
+              Nenhum curso encontrado
             </h3>
-            <p className="text-gray-500">
-              {isConnected 
-                ? 'Tente ajustar os filtros de busca ou limpar os campos.'
-                : 'Verifique se o Google Apps Script está configurado corretamente.'
-              }
+            <p style={{
+              color: '#6b7280',
+              marginBottom: '20px'
+            }}>
+              Tente ajustar os filtros ou limpar a busca para ver mais resultados.
             </p>
+            <button
+              style={{
+                ...styles.button,
+                ...styles.buttonPrimary,
+                margin: '0 auto'
+              }}
+              onClick={clearFilters}
+            >
+              <Filter size={16} />
+              Limpar Filtros
+            </button>
           </div>
         )}
+      </div>
+
+      {/* Footer */}
+      <div style={{
+        textAlign: 'center',
+        padding: '40px 20px',
+        color: '#6b7280',
+        borderTop: '1px solid #e5e7eb',
+        marginTop: '40px'
+      }}>
+        <p style={{fontSize: '0.85rem'}}>
+          Dashboard de Cursos - Sistema de Gestão Educacional
+        </p>
+        <p style={{fontSize: '0.8rem', marginTop: '5px'}}>
+          Desenvolvido com React • Última atualização: {lastUpdate.toLocaleString('pt-BR')}
+        </p>
       </div>
     </div>
   );
