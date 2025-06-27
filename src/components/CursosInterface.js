@@ -22,56 +22,14 @@ const CursosInterface = () => {
       id: 1,
       localidade: "São Paulo - SP",
       curso: "Desenvolvimento Web",
-      nomenclatura: "Curso Completo de Desenvolvimento Web com HTML, CSS, JavaScript e React",
+      nomenclatura: "Curso Completo de Teoria e Solfejo",
       matriculados: 25,
       inicio: "15/01/2025",
       termino: "15/06/2025",
-      dia: "Segunda a Quinta",
+      dia: "SÁB",
       hora: "19:00 às 22:00",
-      pendente: ["João Silva", "Maria Santos", "Pedro Costa"],
-      irregular: ["Ana Oliveira"],
-      status: "ativo"
-    },
-    {
-      id: 2,
-      localidade: "Rio de Janeiro - RJ",
-      curso: "Python para Data Science",
-      nomenclatura: "Análise de Dados e Machine Learning com Python, Pandas e Scikit-learn",
-      matriculados: 18,
-      inicio: "20/01/2025",
-      termino: "20/05/2025",
-      dia: "Terça e Quinta",
-      hora: "18:30 às 21:30",
-      pendente: ["Carlos Lima", "Sofia Rocha"],
-      irregular: ["Bruno Alves", "Camila Ferreira", "Diego Santos"],
-      status: "ativo"
-    },
-    {
-      id: 3,
-      localidade: "Belo Horizonte - MG",
-      curso: "Design UX/UI",
-      nomenclatura: "Design de Experiência do Usuário e Interface com Figma e Prototipação",
-      matriculados: 20,
-      inicio: "10/02/2025",
-      termino: "10/07/2025",
-      dia: "Segunda a Sexta",
-      hora: "14:00 às 17:00",
-      pendente: ["Larissa Melo", "Rafael Torres", "Amanda Silva", "Gabriel Costa"],
-      irregular: [],
-      status: "ativo"
-    },
-    {
-      id: 4,
-      localidade: "Campinas - SP",
-      curso: "Mobile Development",
-      nomenclatura: "Desenvolvimento de Aplicativos Mobile com React Native e Flutter",
-      matriculados: 15,
-      inicio: "05/02/2025",
-      termino: "05/08/2025",
-      dia: "Sábados",
-      hora: "08:00 às 17:00",
-      pendente: ["Lucas Barbosa"],
-      irregular: ["Fernanda Lima", "Ricardo Santos", "Julia Oliveira", "Marcos Silva", "Patricia Costa", "Eduardo Rocha"],
+      pendente: ["22/01", "29/01"],
+      irregular: ["15/01"],
       status: "ativo"
     }
   ];
@@ -536,7 +494,7 @@ const CursosInterface = () => {
         <div style={styles.loading}>
           <div style={styles.spinner}></div>
           <p style={{color: '#64748b', fontWeight: '500', marginBottom: '8px'}}>
-            Conectando com Google Sheets...
+            Conectando...
           </p>
           <p style={{color: '#64748b', fontSize: '0.9rem'}}>
             Carregando dados dos cursos...
@@ -589,7 +547,7 @@ const CursosInterface = () => {
                 backgroundColor: isConnected ? '#10b981' : '#f59e0b'
               }}></div>
               <span style={{color: isConnected ? '#10b981' : '#f59e0b', fontWeight: '500'}}>
-                {isConnected ? 'Conectado ao Google Sheets' : 'Modo Demonstração'}
+                {isConnected ? 'Conectado' : 'Modo Demonstração'}
               </span>
             </div>
           </div>
