@@ -532,7 +532,9 @@ const CursosInterface = () => {
         {/* Header */}
         <div style={styles.header}>
           <h1 style={styles.title}>Monitoria aos Lançamentos - SAM/Hortolândia-SP</h1>
-          <p style={styles.subtitle}>Gerencie e visualize informações dos cursos em tempo real</p>
+          <p style={styles.subtitle}>- Aulas com lançamento registrado, mas sem dados de frequência
+- Aulas sem lançamento de frequência realizado
+Atualização: diariamente às 10h00</p>
           
           <div style={styles.statusBar}>
             <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
