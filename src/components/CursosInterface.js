@@ -776,14 +776,14 @@ const CursosInterface = () => {
                   {/* Pendências */}
                   <div style={{
                     ...styles.statusCard,
-                    backgroundColor: curso.pendente.length > 3 ? '#fffbeb' : '#f8fafc',
-                    borderColor: curso.pendente.length > 3 ? '#fed7aa' : '#e2e8f0'
+                    backgroundColor: curso.pendente.length > 1 ? '#fffbeb' : '#f8fafc',
+                    borderColor: curso.pendente.length > 1 ? '#fed7aa' : '#e2e8f0'
                   }}>
                     <div style={styles.statusHeader}>
                       <div style={styles.statusTitle}>
                         <AlertTriangle 
                           size={20} 
-                          color={curso.pendente.length > 3 ? '#d97706' : '#6b7280'} 
+                          color={curso.pendente.length > 1 ? '#d97706' : '#6b7280'} 
                         />
                         <span style={{color: curso.pendente.length > 3 ? '#d97706' : '#374151'}}>
                           Pendências
@@ -791,8 +791,8 @@ const CursosInterface = () => {
                       </div>
                       <span style={{
                         ...styles.statusBadge,
-                        backgroundColor: curso.pendente.length > 3 ? '#fed7aa' : '#e5e7eb',
-                        color: curso.pendente.length > 3 ? '#92400e' : '#6b7280'
+                        backgroundColor: curso.pendente.length > 1 ? '#fed7aa' : '#e5e7eb',
+                        color: curso.pendente.length > 1 ? '#92400e' : '#6b7280'
                       }}>
                         {curso.pendente.length}
                       </span>
@@ -822,20 +822,20 @@ const CursosInterface = () => {
                   {/* Irregularidades */}
                   <div style={{
                     ...styles.statusCard,
-                    backgroundColor: curso.irregular.length > 5 ? '#fef2f2' : 
+                    backgroundColor: curso.irregular.length > 2 ? '#fef2f2' : 
                                     curso.irregular.length > 0 ? '#fffbeb' : '#f8fafc',
-                    borderColor: curso.irregular.length > 5 ? '#fecaca' : 
+                    borderColor: curso.irregular.length > 2 ? '#fecaca' : 
                                 curso.irregular.length > 0 ? '#fed7aa' : '#e2e8f0'
                   }}>
                     <div style={styles.statusHeader}>
                       <div style={styles.statusTitle}>
                         <AlertTriangle 
                           size={20} 
-                          color={curso.irregular.length > 5 ? '#dc2626' : 
+                          color={curso.irregular.length > 2 ? '#dc2626' : 
                                  curso.irregular.length > 0 ? '#d97706' : '#6b7280'} 
                         />
                         <span style={{
-                          color: curso.irregular.length > 5 ? '#dc2626' : 
+                          color: curso.irregular.length > 2 ? '#dc2626' : 
                                  curso.irregular.length > 0 ? '#d97706' : '#374151'
                         }}>
                           Irregularidades
@@ -843,9 +843,9 @@ const CursosInterface = () => {
                       </div>
                       <span style={{
                         ...styles.statusBadge,
-                        backgroundColor: curso.irregular.length > 5 ? '#fecaca' : 
+                        backgroundColor: curso.irregular.length > 2 ? '#fecaca' : 
                                         curso.irregular.length > 0 ? '#fed7aa' : '#e5e7eb',
-                        color: curso.irregular.length > 5 ? '#991b1b' : 
+                        color: curso.irregular.length > 2 ? '#991b1b' : 
                                curso.irregular.length > 0 ? '#92400e' : '#6b7280'
                       }}>
                         {curso.irregular.length}
