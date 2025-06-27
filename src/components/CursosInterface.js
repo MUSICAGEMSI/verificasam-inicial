@@ -529,13 +529,32 @@ const CursosInterface = () => {
       `}</style>
       
       <div style={styles.main}>
-        {/* Header */}
-        <div style={styles.header}>
-          <h1 style={styles.title}>Monitoria aos Lançamentos - SAM/Hortolândia-SP</h1>
-          <p style={styles.subtitle}>- Aulas com lançamento registrado, mas sem dados de frequência
-- Aulas sem lançamento de frequência realizado
-Atualização: diariamente às 10h00</p>
-          
+  {/* Header */}
+  <div style={styles.header}>
+    <h1 style={styles.title}>📊 Monitoria aos Lançamentos - SAM/Hortolândia-SP</h1>
+    <div style={styles.subtitle}>
+      <div style={styles.infoSection}>
+        <h3 style={styles.infoTitle}>📋 TIPOS DE PENDÊNCIAS MONITORADAS:</h3>
+        <div style={styles.pendencyItem}>
+          <span style={styles.icon}>⚠️</span>
+          <span>Aulas com lançamento registrado, mas sem dados de frequência</span>
+        </div>
+        <div style={styles.pendencyItem}>
+          <span style={styles.icon}>❌</span>
+          <span>Aulas sem lançamento de frequência realizado</span>
+        </div>
+        <div style={styles.updateInfo}>
+          <span style={styles.icon}>🔄</span>
+          <span><strong>Atualização automática:</strong> diariamente às 10h00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+    
+
+
+
+    
           <div style={styles.statusBar}>
             <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
               <Clock size={16} />
