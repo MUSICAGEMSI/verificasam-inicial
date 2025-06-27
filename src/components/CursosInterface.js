@@ -531,7 +531,7 @@ const CursosInterface = () => {
       <div style={styles.main}>
         {/* Header */}
         <div style={styles.header}>
-          <h1 style={styles.title}>Dashboard de Cursos</h1>
+          <h1 style={styles.title}>Monitoria aos Lançamentos - SAM/Hortolândia-SP</h1>
           <p style={styles.subtitle}>Gerencie e visualize informações dos cursos em tempo real</p>
           
           <div style={styles.statusBar}>
@@ -718,8 +718,8 @@ const CursosInterface = () => {
                 </div>
               </div>
 
-
-{/* Descrição */}
+              <div style={styles.courseBody}>
+                {/* Descrição */}
                 <div style={styles.courseDescription}>
                   <h4 style={{
                     fontSize: '0.9rem',
@@ -728,14 +728,6 @@ const CursosInterface = () => {
                     marginBottom: '10px',
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em'
-                  }}>
-                    Descrição do Curso
-                  </h4>
-                  <p style={{color: '#374151', lineHeight: '1.6'}}>
-                    <strong style={{fontWeight: '800', color: '#1f2937'}}>
-                      {curso.nomenclatura}
-                    </strong>
-                     
                   }}>
                     Descrição do Curso
                   </h4>
@@ -935,7 +927,7 @@ const CursosInterface = () => {
         marginTop: '40px'
       }}>
         <p style={{fontSize: '0.85rem'}}>
-          Dashboard de Cursos - Sistema de Gestão Educacional
+          Monitoria aos Lançamentos - SAM/Hortolândia-SP
         </p>
         <p style={{fontSize: '0.8rem', marginTop: '5px'}}>
           Desenvolvido com React • Última atualização: {lastUpdate.toLocaleString('pt-BR')}
