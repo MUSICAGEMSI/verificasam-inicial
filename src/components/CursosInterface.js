@@ -90,8 +90,8 @@ const CursosInterface = () => {
           termino: item.termino || '',
           dia: item.dia || '',
           hora: item.hora || '',
-          pendente: item.pendente ? item.pendente.split(',').map(d => d.trim()).filter(d => d) : [],
-          irregular: item.irregular ? item.irregular.split(',').map(d => d.trim()).filter(d => d) : [],
+          pendente: item.pendente ? item.pendente.split(';').map(d => d.trim()).filter(d => d) : [],
+          irregular: item.irregular ? item.irregular.split(';').map(d => d.trim()).filter(d => d) : [],
           status: item.status || 'ativo'
         }));
       }
@@ -114,8 +114,8 @@ const CursosInterface = () => {
             termino: obj.termino || '',
             dia: obj.dia || '',
             hora: obj.hora || '',
-            pendente: obj.pendente ? obj.pendente.split(',').map(d => d.trim()).filter(d => d) : [],
-            irregular: obj.irregular ? obj.irregular.split(',').map(d => d.trim()).filter(d => d) : [],
+            pendente: obj.pendente ? obj.pendente.split(';').map(d => d.trim()).filter(d => d) : [],
+            irregular: obj.irregular ? obj.irregular.split(';').map(d => d.trim()).filter(d => d) : [],
             status: obj.status || 'ativo'
           };
         });
