@@ -265,7 +265,7 @@ const CursosInterface = () => {
   };
 
   const getStatusText = (pendente, irregular) => {
-    if (irregular.length > 2) return 'Atenção;
+    if (irregular.length > 2) return 'Crítico;
     if (pendente.length > 1) return 'Atenção';
     return 'Normal';
   };
