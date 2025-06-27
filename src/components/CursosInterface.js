@@ -939,6 +939,7 @@ Atualização: diariamente às 10h00</p>
         })()}
       </p>
     </div>
+  </div>
   );
 };
 
