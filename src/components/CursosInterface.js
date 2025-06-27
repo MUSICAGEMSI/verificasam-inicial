@@ -528,13 +528,109 @@ const CursosInterface = () => {
         }
       `}</style>
       
-      <div style={styles.main}>
-        {/* Header */}
-        <div style={styles.header}>
-          <h1 style={styles.title}>Monitoria aos Lançamentos - SAM/Hortolândia-SP</h1>
-          <p style={styles.subtitle}>- Aulas com lançamento registrado, mas sem dados de frequência
-- Aulas sem lançamento de frequência realizado
-Atualização: diariamente às 10h00</p>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoria SAM/Hortolândia-SP</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .header-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .main-title {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+        
+        .info-section {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            font-size: 1em;
+        }
+        
+        .bullet {
+            color: #ffd700;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .update-info {
+            background: rgba(255,255,255,0.15);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 500;
+            border-left: 4px solid #ffd700;
+        }
+        
+        .icon {
+            display: inline-block;
+            margin-right: 8px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <h1 class="main-title">
+            <span class="icon">📊</span>
+            Monitoria aos Lançamentos - SAM/Hortolândia-SP
+        </h1>
+        
+        <div class="info-section">
+            <div class="info-item">
+                <span class="bullet">•</span>
+                <span><strong>Aulas com lançamento registrado:</strong> mas sem dados de frequência</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="bullet">•</span>
+                <span><strong>Aulas sem lançamento:</strong> de frequência realizado</span>
+            </div>
+            
+            <div class="update-info">
+                <span class="icon">🔄</span>
+                <strong>Atualização:</strong> diariamente às 10h00
+            </div>
+        </div>
+    </div>
+</body>
+</html>
           
           <div style={styles.statusBar}>
             <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
