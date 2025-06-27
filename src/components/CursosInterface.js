@@ -259,14 +259,14 @@ const CursosInterface = () => {
   };
 
   const getStatusColor = (pendente, irregular) => {
-    if (irregular.length > 5) return 'critical';
-    if (pendente.length > 3) return 'warning';
+    if (irregular.length > 2) return 'critical';
+    if (pendente.length > 1) return 'warning';
     return 'normal';
   };
 
   const getStatusText = (pendente, irregular) => {
-    if (irregular.length > 5) return 'Crítico';
-    if (pendente.length > 3) return 'Atenção';
+    if (irregular.length > 2) return 'Atenção;
+    if (pendente.length > 1) return 'Atenção';
     return 'Normal';
   };
 
