@@ -718,8 +718,8 @@ const CursosInterface = () => {
                 </div>
               </div>
 
-              <div style={styles.courseBody}>
-                {/* Descrição */}
+
+{/* Descrição */}
                 <div style={styles.courseDescription}>
                   <h4 style={{
                     fontSize: '0.9rem',
@@ -728,6 +728,14 @@ const CursosInterface = () => {
                     marginBottom: '10px',
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em'
+                  }}>
+                    Descrição do Curso
+                  </h4>
+                  <p style={{color: '#374151', lineHeight: '1.6'}}>
+                    <strong style={{fontWeight: '800', color: '#1f2937'}}>
+                      {curso.nomenclatura}
+                    </strong>
+                     
                   }}>
                     Descrição do Curso
                   </h4>
