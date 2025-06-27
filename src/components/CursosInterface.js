@@ -529,32 +529,13 @@ const CursosInterface = () => {
       `}</style>
       
       <div style={styles.main}>
-  {/* Header */}
-  <div style={styles.header}>
-    <h1 style={styles.title}>📊 Monitoria aos Lançamentos - SAM/Hortolândia-SP</h1>
-    <div style={styles.subtitle}>
-      <div style={styles.infoSection}>
-        <h3 style={styles.infoTitle}>📋 TIPOS DE PENDÊNCIAS MONITORADAS:</h3>
-        <div style={styles.pendencyItem}>
-          <span style={styles.icon}>⚠️</span>
-          <span>Aulas com lançamento registrado, mas sem dados de frequência</span>
-        </div>
-        <div style={styles.pendencyItem}>
-          <span style={styles.icon}>❌</span>
-          <span>Aulas sem lançamento de frequência realizado</span>
-        </div>
-        <div style={styles.updateInfo}>
-          <span style={styles.icon}>🔄</span>
-          <span><strong>Atualização automática:</strong> diariamente às 10h00</span>
-        </div>
-      </div>
-    </div>
-  </div>
-    
-
-
-
-    
+        {/* Header */}
+        <div style={styles.header}>
+          <h1 style={styles.title}>Monitoria aos Lançamentos - SAM/Hortolândia-SP</h1>
+          <p style={styles.subtitle}>- Aulas com lançamento registrado, mas sem dados de frequência
+- Aulas sem lançamento de frequência realizado
+Atualização: diariamente às 10h00</p>
+          
           <div style={styles.statusBar}>
             <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
               <Clock size={16} />
@@ -939,21 +920,24 @@ const CursosInterface = () => {
         )}
       </div>
 
-      {/* Footer */}
-      <div style={{
-        textAlign: 'center',
-        padding: '40px 20px',
-        color: '#6b7280',
-        borderTop: '1px solid #e5e7eb',
-        marginTop: '40px'
-      }}>
-        <p style={{fontSize: '0.85rem'}}>
-          Monitoria aos Lançamentos - SAM/Hortolândia-SP
-        </p>
-        <p style={{fontSize: '0.8rem', marginTop: '5px'}}>
-          Desenvolvido com React • Última atualização: {lastUpdate.toLocaleString('pt-BR')}
-        </p>
-      </div>
+{/* Footer */}
+    <div style={{
+      textAlign: 'center',
+      padding: '40px 20px',
+      color: '#6b7280',
+      borderTop: '1px solid #e5e7eb',
+      marginTop: '40px'
+    }}>
+      <p style={{fontSize: '0.85rem'}}>
+        Monitoria aos Lançamentos - SAM/Hortolândia-SP
+      </p>
+      <p style={{fontSize: '0.8rem', marginTop: '5px'}}>
+        Desenvolvido pelos Multiplicadores do SAM • Última atualização: {(() => {
+          const today = new Date();
+          today.setHours(10, 0, 0, 0); // Define para 10:00:00
+          return today.toLocaleString('pt-BR');
+        })()}
+      </p>
     </div>
   );
 };
