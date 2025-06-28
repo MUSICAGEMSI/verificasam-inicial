@@ -260,20 +260,54 @@ const CursosInterface = () => {
       margin: '0 auto',
       padding: '20px'
     },
-    header: {
-      textAlign: 'center',
-      marginBottom: '40px'
-    },
-    title: {
-      fontSize: '2.5rem',
-      fontWeight: 'bold',
-      color: '#1e293b',
-      marginBottom: '10px'
-    },
-    subtitle: {
-      fontSize: '1.1rem',
-      color: '#64748b',
+    // Novo estilo para o header customizado
+    headerContainer: {
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      color: 'white',
+      padding: '30px',
+      borderRadius: '12px',
+      boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
       marginBottom: '20px'
+    },
+    mainTitle: {
+      fontSize: '2.2em',
+      fontWeight: 'bold',
+      marginBottom: '20px',
+      textAlign: 'center',
+      textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+    },
+    infoSection: {
+      background: 'rgba(255,255,255,0.1)',
+      padding: '20px',
+      borderRadius: '8px',
+      marginTop: '20px',
+      backdropFilter: 'blur(10px)'
+    },
+    infoItem: {
+      display: 'flex',
+      alignItems: 'flex-start',
+      marginBottom: '12px',
+      fontSize: '1em'
+    },
+    bullet: {
+      color: '#ffd700',
+      fontWeight: 'bold',
+      marginRight: '10px',
+      fontSize: '1.2em'
+    },
+    updateInfo: {
+      background: 'rgba(255,255,255,0.15)',
+      padding: '15px',
+      borderRadius: '6px',
+      marginTop: '15px',
+      textAlign: 'center',
+      fontWeight: '500',
+      borderLeft: '4px solid #ffd700'
+    },
+    icon: {
+      display: 'inline-block',
+      marginRight: '8px',
+      fontSize: '1.1em'
     },
     statusBar: {
       display: 'flex',
@@ -528,110 +562,31 @@ const CursosInterface = () => {
         }
       `}</style>
       
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoria SAM/Hortolândia-SP</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f8f9fa;
-        }
-        
-        .header-container {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .main-title {
-            font-size: 2.2em;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .subtitle {
-            font-size: 1.1em;
-            margin-bottom: 15px;
-            line-height: 1.6;
-            opacity: 0.95;
-        }
-        
-        .info-section {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .info-item {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 12px;
-            font-size: 1em;
-        }
-        
-        .bullet {
-            color: #ffd700;
-            font-weight: bold;
-            margin-right: 10px;
-            font-size: 1.2em;
-        }
-        
-        .update-info {
-            background: rgba(255,255,255,0.15);
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 15px;
-            text-align: center;
-            font-weight: 500;
-            border-left: 4px solid #ffd700;
-        }
-        
-        .icon {
-            display: inline-block;
-            margin-right: 8px;
-            font-size: 1.1em;
-        }
-    </style>
-</head>
-<body>
-    <div class="header-container">
-        <h1 class="main-title">
-            <span class="icon">📊</span>
+      <div style={styles.main}>  
+        {/* Header Customizado */}
+        <div style={styles.headerContainer}>
+          <h1 style={styles.mainTitle}>
+            <span style={styles.icon}>📊</span>
             Monitoria aos Lançamentos - SAM/Hortolândia-SP
-        </h1>
-        
-        <div class="info-section">
-            <div class="info-item">
-                <span class="bullet">•</span>
-                <span><strong>Aulas com lançamento registrado:</strong> mas sem dados de frequência</span>
-            </div>
-            
-            <div class="info-item">
-                <span class="bullet">•</span>
-                <span><strong>Aulas sem lançamento:</strong> de frequência realizado</span>
-            </div>
-            
-            <div class="update-info">
-                <span class="icon">🔄</span>
-                <strong>Atualização:</strong> diariamente às 10h00
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+          </h1>
           
+          <div style={styles.infoSection}>
+            <div style={styles.infoItem}>
+              <span style={styles.bullet}>•</span>
+              <span><strong>Aulas com lançamento registrado:</strong> mas sem dados de frequência</span>
+            </div>
+            
+            <div style={styles.infoItem}>
+              <span style={styles.bullet}>•</span>
+              <span><strong>Aulas sem lançamento:</strong> de frequência realizado</span>
+            </div>
+            
+            <div style={styles.updateInfo}>
+              <span style={styles.icon}>🔄</span>
+              <strong>Atualização:</strong> diariamente às 10h00
+            </div>
+          </div>
+              
           <div style={styles.statusBar}>
             <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
               <Clock size={16} />
