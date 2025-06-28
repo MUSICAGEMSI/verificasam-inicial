@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Users, Calendar, Clock, MapPin, AlertTriangle, CheckCircle, RefreshCw, Filter, Download, Upload, BookOpen, User } from 'lucide-react';
 
 const CursosInterface = () => {
+  const CursosInterface = () => {
   const [cursos, setCursos] = useState([]);
   const [filteredCursos, setFilteredCursos] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -10,6 +11,7 @@ const CursosInterface = () => {
   const [error, setError] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [isConnected, setIsConnected] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   // Configuração do Google Sheets
   const SHEETS_CONFIG = {
@@ -566,7 +568,7 @@ const CursosInterface = () => {
         {/* Header Customizado */}
         <div style={styles.headerContainer}>
           <h1 style={styles.mainTitle}>
-            <span style={styles.icon}>📊</span>
+            <span style={styles.icon}>🎵</span>
             Monitoria aos Lançamentos - SAM/Hortolândia-SP
           </h1>
           
