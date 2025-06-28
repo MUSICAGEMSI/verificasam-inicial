@@ -573,12 +573,12 @@ const CursosInterface = () => {
           <div style={styles.infoSection}>
             <div style={styles.infoItem}>
               <span style={styles.bullet}>•</span>
-              <span><strong>Aulas com lançamento registrado:</strong> mas sem dados de frequência</span>
+              <span><strong>Pendências:</strong> aulas que não foram lançadas</span>
             </div>
             
             <div style={styles.infoItem}>
               <span style={styles.bullet}>•</span>
-              <span><strong>Aulas sem lançamento:</strong> de frequência realizado</span>
+              <span><strong>Irregularidades:</strong> aulas lançadas que não possuem registros</span>
             </div>
             
             <div style={styles.updateInfo}>
