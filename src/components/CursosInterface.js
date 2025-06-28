@@ -114,7 +114,7 @@ const CursosInterface = () => {
           }
         } catch (error) {
           console.error('Erro ao processar dados:', error);
-          setError('Erro ao processar dados do Google Sheets - usando dados de exemplo');
+          setError('Erro ao processar dados - usando Exemplo');
           setIsConnected(false);
           setCursos(dadosExemplo);
           setFilteredCursos(dadosExemplo);
@@ -131,7 +131,7 @@ const CursosInterface = () => {
         }
         delete window[callbackName];
         
-        setError('Timeout ao conectar com Google Sheets - usando dados de exemplo');
+        setError('Timeout ao conectar - usando dados de exemplo');
         setIsConnected(false);
         setCursos(dadosExemplo);
         setFilteredCursos(dadosExemplo);
@@ -148,7 +148,7 @@ const CursosInterface = () => {
         }
         delete window[callbackName];
         
-        setError('Erro de rede ao conectar com Google Sheets - usando dados de exemplo');
+        setError('Erro de rede ao conectar - usando dados de exemplo');
         setIsConnected(false);
         setCursos(dadosExemplo);
         setFilteredCursos(dadosExemplo);
@@ -160,7 +160,7 @@ const CursosInterface = () => {
       
     } catch (error) {
       console.error('Erro geral:', error);
-      setError('Erro ao conectar com Google Sheets - usando dados de exemplo');
+      setError('Erro ao conectar - usando dados de exemplo');
       setIsConnected(false);
       setCursos(dadosExemplo);
       setFilteredCursos(dadosExemplo);
